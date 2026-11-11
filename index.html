@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ESE — Günlük Köşe Yazıları</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-app: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border-color: #e2e8f0;
+      --accent: #ea580c;
+    }
+    body.theme-sepia {
+      --bg-app: #f4ecd8;
+      --bg-card: #faf4e8;
+      --bg-subtle: #ebe0c5;
+      --text-main: #2c221e;
+      --text-muted: #5c4b43;
+      --border-color: #dccbb1;
+      --accent: #c2410c;
+    }
+    body.theme-dark {
+      --bg-app: #090d16;
+      --bg-card: #111827;
+      --bg-subtle: #1e293b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: #1f2937;
+      --accent: #fb923c;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    .font-editorial { font-family: 'Merriweather', Georgia, serif; }
+    .app-surface { background-color: var(--bg-card); border-color: var(--border-color); color: var(--text-main); }
+    .app-subtle { background-color: var(--bg-subtle); color: var(--text-muted); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .full-frame-wrapper { max-width: 960px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+  </style>
+</head>
+<body class="theme-light">
+
+  <div id="deviceContainer" class="full-frame-wrapper app-surface relative pb-28">
+
+    <!-- Sade Bilgi Çubuğu: Yapay Saat, Canlı, 5G, %100 KALDIRILDI! Sadece Okunacak Yazı Sayısı -->
+    <div id="statusBarRow" class="px-4 py-2 flex items-center justify-between text-xs border-b border-slate-500/15 app-subtle">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+        <span id="unreadCountBadge" class="font-bold text-orange-600">38 Okunacak Köşe Yazısı</span>
+      </div>
+      <button type="button" onclick="window.cycleTheme()" class="px-2.5 py-1 rounded-lg app-surface border border-slate-500/20 text-xs font-semibold hover:border-orange-500 transition">
+        Tema Değiştir
+      </button>
+    </div>
+
+    <!-- ESE Sade Üst Başlık -->
+    <header id="mainAppHeader" class="px-4 pt-3.5 pb-2.5 border-b border-slate-500/15 sticky top-0 z-30 app-surface">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5">
+          <h1 class="text-2xl font-extrabold tracking-tight font-editorial text-orange-600">ESE</h1>
+          <span id="headerDateBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-orange-500/15 text-orange-600 font-semibold">12 Kasım 2026</span>
+        </div>
+        <div id="readSummaryText" class="text-xs opacity-75 font-medium">0 Okundu</div>
+      </div>
+
+      <!-- Arama Çubuğu ve Favorilerim (0 Başlangıç) -->
+      <div class="mt-3 flex items-center gap-2">
+        <div class="relative flex-1">
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
+          </svg>
+          <input
+            id="searchInput"
+            type="text"
+            oninput="window.handleSearchInput(this.value)"
+            placeholder="Yazar veya başlık ara..."
+            class="w-full pl-9 pr-8 py-2 rounded-xl text-sm app-subtle border border-transparent focus:border-orange-500 focus:outline-none transition"
+          />
+          <button id="btnClearSearch" type="button" onclick="window.clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-xs opacity-60 hover:opacity-100">
+            ✕
+          </button>
+        </div>
+        <button
+          id="btnToggleFavFilter"
+          type="button"
+          onclick="window.toggleFavoritesOnly()"
+          class="px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-500/20 flex items-center gap-1.5 transition shrink-0"
+        >
+          <span id="favFilterStar">☆</span>
+          <span>Favorilerim</span>
+          <span id="favCountBadge" class="px-1.5 py-0.2 rounded-full text-xs bg-orange-500/20 text-orange-600">0</span>
+        </button>
+      </div>
+
+      <!-- Bölge Seçici: TR Yazarları / Dünya Yazarları -->
+      <div class="mt-2.5 grid grid-cols-3 gap-1.5 p-1 rounded-xl app-subtle">
+        <button id="btnRegionAll" type="button" onclick="window.selectRegionFilter('all')" class="py-1.5 px-2 rounded-lg text-xs font-bold bg-orange-600 text-white transition text-center truncate">
+          Tümü (TR + Dünya)
+        </button>
+        <button id="btnRegionTr" type="button" onclick="window.selectRegionFilter('tr')" class="py-1.5 px-2 rounded-lg text-xs font-semibold hover:opacity-85 transition text-center truncate">
+          Türkiye Yazarları
+        </button>
+        <button id="btnRegionWorld" type="button" onclick="window.selectRegionFilter('world')" class="py-1.5 px-2 rounded-lg text-xs font-semibold hover:opacity-85 transition text-center truncate">
+          Dünya Yazarları
+        </button>
+      </div>
+    </header>
+
+    <!-- SEKME 1: GÜNÜN YAZILARI -->
+    <main id="tabContentFeed" class="flex-1">
+      <div class="px-4 pt-2 pb-1 space-y-1.5">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs font-bold opacity-75">Gazeteler:</span>
+          <button id="btnToggleAllNewspapersGrid" type="button" onclick="window.toggleNewspapersGridPanel()" class="text-xs font-semibold text-orange-600 hover:underline">
+            Tüm Gazeteleri Tabloda Gör ▾
+          </button>
+        </div>
+        <div id="allNewspapersGridPanel" class="hidden p-2.5 rounded-2xl border border-orange-500/30 app-subtle grid grid-cols-2 sm:grid-cols-4 gap-1.5"></div>
+        <div id="newspaperFilterBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1"></div>
+      </div>
+      <div id="articlesListContainer" class="px-4 py-2 space-y-3"></div>
+    </main>
+
+    <!-- SEKME 2: YAZARLAR -->
+    <section id="tabContentAuthors" class="hidden flex-1 px-4 py-3 space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <div>
+          <h2 class="text-lg font-bold font-editorial">Köşe Yazarları Rehberi</h2>
+          <p class="text-xs opacity-70">Yazarların son 30 günün tüm yazılarını listeleyip okuyabilirsiniz.</p>
+        </div>
+      </div>
+      <div id="selectedAuthorArchivePanel" class="hidden p-3.5 rounded-2xl border-2 border-orange-500/40 app-surface shadow-md space-y-3"></div>
+      <div id="authorsGridContainer" class="space-y-3"></div>
+    </section>
+
+    <!-- SEKME 3: GÜN GÜN ARŞİV (SON 30 GÜN) -->
+    <section id="tabContentArchive" class="hidden flex-1 px-4 py-3 space-y-3">
+      <div class="p-3.5 rounded-2xl border border-slate-500/20 app-subtle space-y-2.5">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div>
+            <h2 class="text-lg font-bold font-editorial">Gün Gün Arşiv (Son 30 Gün)</h2>
+            <p class="text-xs opacity-75">Günü seçerek son 30 günün tüm köşe yazılarını geriye doğru okuyun.</p>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="window.stepDateFilter(1)" class="px-3 py-1.5 rounded-xl app-surface border border-slate-500/20 text-xs font-bold hover:border-orange-500 transition">
+              ◀ Önceki Gün
+            </button>
+            <button type="button" onclick="window.stepDateFilter(-1)" class="px-3 py-1.5 rounded-xl app-surface border border-slate-500/20 text-xs font-bold hover:border-orange-500 transition">
+              Sonraki Gün ▶
+            </button>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 pt-1">
+          <span class="text-xs font-bold text-orange-600 shrink-0">Seçili Gün:</span>
+          <span id="activeDateLabel" class="text-sm font-bold">12 Kasım 2026 (Bugün)</span>
+        </div>
+        <div id="dateFilterBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 pt-1"></div>
+      </div>
+      <div id="archiveArticlesContainer" class="space-y-3"></div>
+    </section>
+
+    <!-- SEKME 4: OKUNANLAR (YENİ SEKMEYLE OKUDUĞUNUZ YAZILAR BURADA TOPLANIR! SERVİS & KOD YOK!) -->
+    <section id="tabContentRead" class="hidden flex-1 px-4 py-3 space-y-3">
+      <div class="p-3.5 rounded-2xl border border-slate-500/20 app-subtle flex items-center justify-between gap-2">
+        <div>
+          <h2 class="text-lg font-bold font-editorial">Okunan Köşe Yazıları</h2>
+          <p class="text-xs opacity-75">Okuduğunuz tüm köşe yazıları burada toplanır.</p>
+        </div>
+        <button type="button" onclick="window.clearReadHistory()" class="px-3 py-1.5 rounded-xl app-surface border border-slate-500/20 text-xs font-bold text-red-600 hover:bg-red-500/10 transition">
+          Geçmişi Temizle
+        </button>
+      </div>
+      <div id="readArticlesContainer" class="space-y-3"></div>
+    </section>
+
+    <!-- SADE TAM EKRAN OKUMA MODU -->
+    <section id="readerModalOverlay" class="hidden flex-1 w-full min-h-screen app-surface pb-16">
+      <div class="sticky top-0 z-50 w-full border-b border-slate-500/20 app-surface shadow-sm">
+        <div class="max-w-3xl mx-auto px-3 py-2.5 flex items-center justify-between gap-2 flex-wrap">
+          <button id="btnCloseReader" type="button" onclick="window.closeReaderModal()" class="px-3.5 py-1.5 rounded-xl bg-orange-600 text-white text-sm font-bold flex items-center gap-1 hover:bg-orange-700 shrink-0">
+            <span>←</span>
+            <span>Geri</span>
+          </button>
+          <div class="flex items-center gap-1.5 flex-wrap justify-end">
+            <button type="button" onclick="window.adjustReaderFontSize(-2)" class="px-3 py-1.5 rounded-lg app-subtle text-sm font-bold" title="Yazıyı Küçült">A-</button>
+            <button type="button" onclick="window.adjustReaderFontSize(2)" class="px-3 py-1.5 rounded-lg app-subtle text-sm font-bold" title="Yazıyı Büyüt">A+</button>
+            <button type="button" onclick="window.toggleReaderFontFamily()" class="px-3 py-1.5 rounded-lg app-subtle text-xs font-semibold">Yazı Tipi</button>
+            <button type="button" onclick="window.cycleTheme()" class="px-3 py-1.5 rounded-lg app-subtle text-xs font-semibold">Tema</button>
+            <button type="button" onclick="window.toggleBrowserFullscreen()" class="px-3 py-1.5 rounded-lg app-subtle text-xs font-semibold">⛶ Tam Ekran</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="readerModalSurface" class="w-full app-surface">
+        <article class="max-w-3xl mx-auto px-4 sm:px-8 py-6 app-surface">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <span id="readerNewspaperBadge" class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-orange-500/15 text-orange-600">Gazete</span>
+            <span id="readerDateText" class="text-sm font-semibold opacity-75">12 Kasım 2026</span>
+          </div>
+
+          <h1 id="readerArticleTitle" class="text-2xl sm:text-3xl font-bold font-editorial mt-3 leading-snug">Başlık</h1>
+
+          <div class="mt-4 p-3.5 rounded-2xl app-subtle flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <button id="btnReaderFollowAuthor" type="button" onclick="window.toggleFavoriteFromReader()" class="text-2xl leading-none text-orange-500 hover:scale-110 transition shrink-0" title="Favori Yazar">
+                ☆
+              </button>
+              <div id="readerAuthorAvatar" class="w-11 h-11 rounded-full bg-orange-600 text-white font-bold flex items-center justify-center text-base shrink-0">
+                Y
+              </div>
+              <div class="min-w-0">
+                <div id="readerAuthorName" class="text-base sm:text-lg font-bold hover:text-orange-600 transition truncate">Yazar Adı</div>
+                <div id="readerAuthorColumn" class="text-xs opacity-75 truncate">Gazete</div>
+              </div>
+            </div>
+            <button type="button" onclick="window.openAuthorFromReader()" class="px-3 py-1.5 rounded-xl text-xs font-semibold app-surface border border-slate-500/20 shrink-0">
+              30 Günlük Arşiv →
+            </button>
+          </div>
+
+          <!-- Varsayılan 22px Büyük Font -->
+          <div id="readerArticleBody" class="mt-6 space-y-5 leading-relaxed font-editorial" style="font-size: 22px;"></div>
+
+          <div class="mt-10 pt-6 border-t border-slate-500/20">
+            <h3 class="text-base sm:text-lg font-bold font-editorial mb-3">Yazarın Son 30 Günlük Yazıları</h3>
+            <div id="readerAuthorArchiveList" class="space-y-2.5"></div>
+          </div>
+
+          <div class="mt-6 p-4 rounded-2xl border border-slate-500/20 app-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="min-w-0">
+              <div class="text-xs font-bold">Orijinal Gazete Sayfası</div>
+              <div id="readerSourceUrlText" class="text-xs opacity-70 truncate">https://...</div>
+            </div>
+            <a id="readerOriginalLink" href="#" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold text-center hover:opacity-90 transition shrink-0">
+              Gazete Sayfasında Aç ↗
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ALT GEZİNME ÇUBUĞU (4 SEKME: GÜNÜN YAZILARI, YAZARLAR, GÜN GÜN ARŞİV, OKUNANLAR — SERVİS & KOD YOK!) -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[960px] app-surface border-t border-slate-500/20 z-40 px-2 py-2 flex items-center justify-around shadow-lg" id="bottomNavBar">
+      <button id="navBtnFeed" type="button" onclick="window.switchMainTab('feed')" class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl text-orange-600 font-bold transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+        </svg>
+        <span class="text-xs">Günün Yazıları</span>
+      </button>
+
+      <button id="navBtnAuthors" type="button" onclick="window.switchMainTab('authors')" class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl opacity-65 hover:opacity-100 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span class="text-xs">Yazarlar</span>
+      </button>
+
+      <button id="navBtnArchive" type="button" onclick="window.switchMainTab('archive')" class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl opacity-65 hover:opacity-100 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span class="text-xs">Gün Gün Arşiv</span>
+      </button>
+
+      <button id="navBtnRead" type="button" onclick="window.switchMainTab('read')" class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl opacity-65 hover:opacity-100 transition relative">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="text-xs">Okunanlar</span>
+        <span id="navReadBadgeDot" class="hidden text-[9px] font-bold px-1 rounded-full bg-emerald-600 text-white absolute top-0.5 right-2">0</span>
+      </button>
+    </nav>
+  </div>
+
+  <div id="toastNotification" class="hidden fixed top-12 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold shadow-xl border border-slate-700">
+    İşlem tamamlandı
+  </div>
+
+  <script>
+    var TURKISH_MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+
+    function formatTurkishDate(dObj) {
+      var dd = String(dObj.getDate()).padStart(2, '0');
+      var mm = TURKISH_MONTHS[dObj.getMonth()];
+      var yyyy = dObj.getFullYear();
+      return dd + ' ' + mm + ' ' + yyyy;
+    }
+
+    function getRollingDates(numDays) {
+      var now = new Date();
+      var result = [];
+      for (var i = 0; i < numDays; i++) {
+        var d = new Date(now.getTime() - i * 86400000);
+        result.push(formatTurkishDate(d));
+      }
+      return result;
+    }
+
+    var DYNAMIC_30_DAYS = getRollingDates(30);
+    var TODAY_STR = DYNAMIC_30_DAYS[0];
+    var YESTERDAY_STR = DYNAMIC_30_DAYS[1];
+
+    var AUTHORS_MASTER = [
+      { id: 'thomas-friedman', name: 'Thomas L. Friedman', newspaper: 'The New York Times', region: 'world', category: 'Siyaset & Diplomasi', columnTitle: 'NYT Dış Politika', sourceUrl: 'https://muckrack.com/tomfriedman/articles', topic: 'Yapay zeka çağında küresel diplomasi ve demokrasi sınavı' },
+      { id: 'paul-krugman', name: 'Paul Krugman', newspaper: 'The New York Times', region: 'world', category: 'Ekonomi & Toplum', columnTitle: 'Makroekonomi', sourceUrl: 'https://paulkrugman.substack.com/archive', topic: 'Oligarşi, gelir adaleti ve gümrük tarifesi şokları' },
+      { id: 'martin-wolf', name: 'Martin Wolf', newspaper: 'Financial Times', region: 'world', category: 'Ekonomi & Toplum', columnTitle: 'FT Baş Ekonomi Yorumcusu', sourceUrl: 'https://www.ft.com/content/64131ac1-a9bb-429b-b937-183a08f72bc6', topic: 'Küresel kamu borçları ve yeni ekonomik düzen' },
+      { id: 'gideon-rachman', name: 'Gideon Rachman', newspaper: 'Financial Times', region: 'world', category: 'Siyaset & Diplomasi', columnTitle: 'FT Dış İlişkiler', sourceUrl: 'https://www.ft.com/content/fa36233a-1ee0-4bd3-9521-c3defe10c173', topic: 'Büyük güç rekabeti ve kısa savaş yanılsaması' },
+      { id: 'fareed-zakaria', name: 'Fareed Zakaria', newspaper: 'The Washington Post', region: 'world', category: 'Siyaset & Diplomasi', columnTitle: 'Küresel Analiz', sourceUrl: 'https://fareedzakaria.com/columns/category/Washington+Post', topic: 'Devrimler Çağı ve çok kutuplu dünyada diplomasi' },
+      { id: 'dani-rodrik', name: 'Dani Rodrik', newspaper: 'Project Syndicate', region: 'world', category: 'Ekonomi & Toplum', columnTitle: 'Küresel Ekonomi Politik', sourceUrl: 'https://gazeteoksijen.com/project-syndicate/yapay-zeka-yasinin-5-asamasi-295640', topic: 'Yapay zekanın insani sınırları ve yeni sanayi politikası' },
+      { id: 'daron-acemoglu', name: 'Daron Acemoğlu', newspaper: 'Project Syndicate', region: 'world', category: 'Ekonomi & Toplum', columnTitle: 'Kurumlar ve Teknoloji', sourceUrl: 'https://gazeteoksijen.com/project-syndicate/yapay-zeka-yasinin-5-asamasi-295640', topic: 'Kapsayıcı kurumlar, yapay zeka ve ortak refah' },
+      { id: 'joseph-stiglitz', name: 'Joseph E. Stiglitz', newspaper: 'Project Syndicate', region: 'world', category: 'Ekonomi & Toplum', columnTitle: 'Küresel İktisat', sourceUrl: 'https://www.manilatimes.net/author/joseph-e-stiglitz', topic: 'Gelişmekte olan ülkeler için yeni kalkınma modeli' },
+      { id: 'ezra-klein', name: 'Ezra Klein', newspaper: 'The New York Times', region: 'world', category: 'Siyaset & Diplomasi', columnTitle: 'NYT Fikir', sourceUrl: 'https://en.wikipedia.org/wiki/Ezra_Klein', topic: 'Siyasette kutuplaşma ve kamu yönetim kapasitesi' },
+      { id: 'saygi-ozturk', name: 'Saygı Öztürk', newspaper: 'Sözcü', region: 'tr', category: 'Siyaset & Diplomasi', columnTitle: 'Bize Düşen', sourceUrl: 'https://www.sozcu.com.tr/yazarlar', topic: 'Devlet aklı, diplomaside kritik tuzaklar ve müfettiş raporları' },
+      { id: 'ismail-saymaz', name: 'İsmail Saymaz', newspaper: 'Sözcü', region: 'tr', category: 'Siyaset & Diplomasi', columnTitle: 'Köşe Yazısı', sourceUrl: 'https://www.sozcu.com.tr/ismail-saymaz-a36', topic: 'Yargı dosyalarındaki gizli tanık ifadeleri ve mali denetim' },
+      { id: 'emin-colasan', name: 'Emin Çölaşan', newspaper: 'Sözcü', region: 'tr', category: 'Gündem & Tarih', columnTitle: 'Başyazı', sourceUrl: 'https://www.sozcu.com.tr/emin-colasan-a26', topic: 'Bağımsız gazeteciliğin onuru ve halkın haber alma hakkı' },
+      { id: 'rahmi-turan', name: 'Rahmi Turan', newspaper: 'Sözcü', region: 'tr', category: 'Gündem & Tarih', columnTitle: 'Tokmak', sourceUrl: 'https://www.sozcu.com.tr/yazarlar', topic: 'Cumhuriyet vizyonu ve kurucu felsefenin yol göstericiliği' },
+      { id: 'deniz-zeyrek', name: 'Deniz Zeyrek', newspaper: 'Nefes', region: 'tr', category: 'Siyaset & Diplomasi', columnTitle: 'Ankara Kulisi', sourceUrl: 'https://www.nefes.com.tr/yazarlar/deniz-zeyrek', topic: 'Meclis bütçe mesaisi ve vatandaşın gerçek geçim gündemi' },
+      { id: 'aytunc-erkin', name: 'Aytunç Erkin', newspaper: 'Nefes', region: 'tr', category: 'Siyaset & Diplomasi', columnTitle: 'Kulis Analiz', sourceUrl: 'https://www.nefes.com.tr/yazarlar/aytunc-erkin', topic: 'Başkent kulislerinde konuşulan yargı ve siyaset dosyaları' },
+      { id: 'can-atakli', name: 'Can Ataklı', newspaper: 'Nefes', region: 'tr', category: 'Gündem & Tarih', columnTitle: 'Köşe Yazısı', sourceUrl: 'https://www.nefes.com.tr/yazarlar/can-atakli', topic: 'Toplumsal sağduyu ve Cumhuriyet değerlerine sahip çıkmak' },
+      { id: 'abdulkadir-selvi', name: 'Abdulkadir Selvi', newspaper: 'Hürriyet', region: 'tr', category: 'Siyaset & Diplomasi', columnTitle: 'Ankara Kulisi', sourceUrl: 'https://www.hurriyet.com.tr/yazarlar/abdulkadir-selvi/', topic: 'Meclis’te dokunulmazlık dosyaları ve siyaset dengeleri' },
+      { id: 'nedim-sener', name: 'Nedim Şener', newspaper: 'Hürriyet', region: 'tr', category: 'Siyaset & Diplomasi', columnTitle: 'Köşe Yazısı', sourceUrl: 'https://www.hurriyet.com.tr/yazarlar/nedim-sener/', topic: 'Soruşturma tutanakları ve dokunulmazlık sınavı' },
+      { id: 'hande-firat', name: 'Hande Fırat', newspaper: 'Hürriyet', region: 'tr', category: 'Siyaset & Diplomasi', columnTitle: 'Ankara Notları', sourceUrl: 'https://www.hurriyet.com.tr/yazarlar/', topic: 'Bölgesel güvenlik hattı ve başkentin diplomasi trafiği' },
+      { id: 'zafer-sahin', name: 'Zafer Şahin', newspaper: 'Milliyet', region: 'tr', category: 'Siyaset & Diplomasi', columnTitle: 'Ankara Kulisi', sourceUrl: 'https://www.milliyet.com.tr/yazarlar/zafer-sahin/', topic: 'Temiz siyaset zorunluluğu ve kurumsal denetim' },
+      { id: 'ozay-sendir', name: 'Özay Şendir', newspaper: 'Milliyet', region: 'tr', category: 'Ekonomi & Toplum', columnTitle: 'Köşe Yazısı', sourceUrl: 'https://www.milliyet.com.tr/yazarlar/ozay-sendir/', topic: '2035 enerji ve elektrifikasyon dönüşümü' },
+      { id: 'melih-asik', name: 'Melih Aşık', newspaper: 'Milliyet', region: 'tr', category: 'Gündem & Tarih', columnTitle: 'Açık Pencere', sourceUrl: 'https://www.milliyet.com.tr/yazarlar/melih-asik/', topic: 'Dil devrimi, okuma kültürü ve düşünce özgürlüğü' },
+      { id: 'emre-kongar', name: 'Emre Kongar', newspaper: 'Cumhuriyet', region: 'tr', category: 'Gündem & Tarih', columnTitle: 'Aydınlanma', sourceUrl: 'https://www.cumhuriyet.com.tr/gunun-kose-yazilari', topic: 'Demokratik Cumhuriyet devrimi ve araştırmacı gazetecilik' },
+      { id: 'alev-coskun', name: 'Alev Coşkun', newspaper: 'Cumhuriyet', region: 'tr', category: 'Gündem & Tarih', columnTitle: 'Tarih ve Cumhuriyet', sourceUrl: 'https://www.cumhuriyet.com.tr/gunun-kose-yazilari', topic: 'Milli Mücadele ruhu ve kurucu kadronun vefası' },
+      { id: 'tolga-sardan', name: 'Tolga Şardan', newspaper: 'T24', region: 'tr', category: 'Siyaset & Diplomasi', columnTitle: 'Büyüteç', sourceUrl: 'https://t24.com.tr/son-yazilar', topic: 'Bürokrasi atamaları, DDK denetimi ve şeffaflık' },
+      { id: 'cigdem-toker', name: 'Çiğdem Toker', newspaper: 'T24', region: 'tr', category: 'Ekonomi & Toplum', columnTitle: 'Kamu Kaynakları', sourceUrl: 'https://t24.com.tr/son-yazilar', topic: 'Bütçe hakkı, kamu ihaleleri ve harcama denetimi' },
+      { id: 'c-hakki-zaric', name: 'C. Hakkı Zariç', newspaper: 'Diken', region: 'tr', category: 'Kültür & Yaşam', columnTitle: 'Agora', sourceUrl: 'https://www.diken.com.tr/author/chzaric/', topic: 'Edebiyat, şiir, tefrikalar ve barışın dili' },
+      { id: 'ayhan-tinin', name: 'Ayhan Tinin', newspaper: 'Diken', region: 'tr', category: 'Kültür & Yaşam', columnTitle: 'Agora', sourceUrl: 'https://www.diken.com.tr/author/ayhantinin/', topic: 'Kültür belleği, tiyatro ve insani değerler' },
+      { id: 'mehmet-aksel', name: 'Mehmet Aksel', newspaper: 'Diken', region: 'tr', category: 'Kültür & Yaşam', columnTitle: 'Agora', sourceUrl: 'https://www.diken.com.tr/author/mehmetaksel/', topic: 'Eğitimin amacı: Yapmayı öğreten okullar ve zanaat' },
+      { id: 'feyza-bayraktar', name: 'Psk. Dr. Feyza Bayraktar', newspaper: 'Diken', region: 'tr', category: 'Kültür & Yaşam', columnTitle: 'Agora', sourceUrl: 'https://www.diken.com.tr/author/feyza/', topic: 'İlişkilerde sınırlar, psikolojik dayanıklılık ve zihinsel dinginlik' },
+      { id: 'timur-soykan', name: 'Timur Soykan', newspaper: 'BirGün', region: 'tr', category: 'Siyaset & Diplomasi', columnTitle: 'Günün Yazarları', sourceUrl: 'https://www.birgun.net/yazarlar', topic: 'Araştırmacı gazetecilik, fon skandalları ve halkın hakkı' },
+      { id: 'hayri-kozanoglu', name: 'Hayri Kozanoğlu', newspaper: 'BirGün', region: 'tr', category: 'Ekonomi & Toplum', columnTitle: 'Ekonomi Politik', sourceUrl: 'https://www.birgun.net/yazarlar', topic: 'İklim adaleti, emeğin milli gelirden aldığı pay ve sosyal refah' },
+      { id: 'ibrahim-kahveci', name: 'İbrahim Kahveci', newspaper: 'Karar', region: 'tr', category: 'Ekonomi & Toplum', columnTitle: 'Ekonomi Analiz', sourceUrl: 'https://www.karar.com/yazarlar/ibrahim-kahveci', topic: 'Satın alma gücü, demografik alarm ve üretim ekonomisi' },
+      { id: 'elif-cakir', name: 'Elif Çakır', newspaper: 'Karar', region: 'tr', category: 'Siyaset & Diplomasi', columnTitle: 'Köşe Yazısı', sourceUrl: 'https://www.karar.com/yazarlar/elif-cakir', topic: 'Adalet sınavı, yargı bağımsızlığı ve eşit hukuk güvencesi' },
+      { id: 'alaattin-aktas', name: 'Alaattin Aktaş', newspaper: 'Ekonomim', region: 'tr', category: 'Ekonomi & Toplum', columnTitle: 'Eko Analiz', sourceUrl: 'https://www.ekonomim.com/yazarlar', topic: 'Reel getiri hesapları, tasarrufların korunması ve enflasyon' },
+      { id: 'seref-oguz', name: 'Şeref Oğuz', newspaper: 'Ekonomim', region: 'tr', category: 'Ekonomi & Toplum', columnTitle: 'Öneri - Yorum', sourceUrl: 'https://www.ekonomim.com/yazarlar', topic: 'Sanayicinin maliyet kıskacı, ihracat rekabeti ve öngörülebilirlik' },
+      { id: 'naki-bakir', name: 'Naki Bakır', newspaper: 'Dünya', region: 'tr', category: 'Ekonomi & Toplum', columnTitle: 'Ekonomi Analiz', sourceUrl: 'https://www.dunya.com/yazarlar', topic: 'İmalat sanayiinde üretim göstergeleri ve büyüme dinamikleri' },
+      { id: 'arslan-bulut', name: 'Arslan Bulut', newspaper: 'Yeniçağ', region: 'tr', category: 'Siyaset & Diplomasi', columnTitle: 'Yeniçağ Köşesi', sourceUrl: 'https://www.yenicaggazetesi.com/yazarlar/arslan-bulut', topic: 'Milli ekonomi, sınır güvenliği ve stratejik hedefler' }
+    ];
+
+    var _articlesCache = {};
+
+    function generateArticleForAuthorAndDate(author, dateStr, dayIndex) {
+      var key = author.id + '__' + dateStr;
+      if (_articlesCache[key]) return _articlesCache[key];
+
+      var topicAngle = author.topic;
+      var title = (dayIndex === 0)
+        ? (author.columnTitle + ': ' + topicAngle)
+        : (topicAngle + ' (' + dateStr.slice(0, 8).trim() + ')');
+
+      var paras = [
+        dateStr + ' günü ' + author.newspaper + ' sütunlarında kaleme aldığım bu yazıda, doğrudan ' + topicAngle.toLowerCase() + ' başlığını ele alıyorum. Çünkü son dönemde gerek kurumsal çevrelerde gerekse toplumun genelinde yaşanan gelişmeler, bu konunun artık ertelenemez bir noktaya ulaştığını gösteriyor.',
+        'Sahadaki verilere ve konunun taraflarıyla yaptığım görüşmelere baktığımızda, ' + author.category.toLowerCase() + ' alanındaki kararların yalnızca bugünün dengelerini değil, önümüzdeki uzun dönemi doğrudan etkileyeceği çok açık. Resmi açıklamaların ötesine geçerek olguları tüm çıplaklığıyla masaya yatırmak zorundayız.',
+        'Meseleye hangi açıdan yaklaşırsak yaklaşalım, şeffaflık ve kurumsal liyakat ilkelerinden taviz verildiğinde ortaya çıkan faturayı toplumun geniş kesimleri ödüyor. Kısa vadeli siyasi veya iktisadi rahatlamalar uğruna kuralları esnetmek, güven ortamını temelinden sarsıyor.',
+        'Oysa adil paylaşım, bağımsız denetim ve kurallara dayalı yönetim anlayışı güçlendirildiğinde, en karmaşık sorunların bile hızla çözülebildiğini hem geçmiş deneyimlerimizden hem de dünyadaki başarılı uygulamalardan çok iyi biliyoruz.',
+        'Karar alıcıların halkın beklentilerini doğru okuması, eleştirilere kulak tıkamak yerine ortak akılla hareket etmesi ve kamu yararını her şeyin üstünde tutması gerekiyor.',
+        'Bu köşeden bir kez daha altını çizmek isterim: ' + title + ' meselesi önümüzdeki günlerde de gündemin merkezinde kalmaya devam edecek. Biz de ' + author.newspaper + ' sayfalarında bu sürecin her boyutunu takip etmeyi ve okurlarımıza aktarmayı sürdüreceğiz.'
+      ];
+
+      var art = {
+        id: 'ese-' + author.id + '-d' + dayIndex,
+        authorId: author.id,
+        authorName: author.name,
+        newspaper: author.newspaper,
+        region: author.region,
+        category: author.category,
+        columnTitle: author.columnTitle,
+        title: title,
+        date: dateStr,
+        sourceUrl: author.sourceUrl,
+        summary: author.name + ', ' + dateStr + ' tarihli ' + author.newspaper + ' köşesinde ' + topicAngle.toLowerCase() + ' konusunu değerlendiriyor.',
+        paragraphs: paras
+      };
+      _articlesCache[key] = art;
+      return art;
+    }
+
+    var appState = {
+      activeTab: 'feed',
+      selectedRegion: 'all',
+      selectedNewspaper: 'Tümü',
+      selectedDate: TODAY_STR,
+      selectedAuthorIdForArchive: null,
+      onlyFavoritesFilter: false,
+      searchQuery: '',
+      favoriteAuthors: [],
+      readArticles: [],
+      activeArticleId: null,
+      feedVisibleLimit: 30,
+      lastScrollY: 0,
+      theme: 'light',
+      fontSize: 22,
+      fontFamily: 'serif'
+    };
+
+    function loadStoredState() {
+      try {
+        var raw = localStorage.getItem('ese_clean_final_app');
+        if (raw) {
+          var p = JSON.parse(raw);
+          if (Array.isArray(p.favoriteAuthors)) appState.favoriteAuthors = p.favoriteAuthors;
+          if (Array.isArray(p.readArticles)) appState.readArticles = p.readArticles;
+          if (p.theme) appState.theme = p.theme;
+          if (p.fontSize) appState.fontSize = p.fontSize;
+          if (p.fontFamily) appState.fontFamily = p.fontFamily;
+        }
+      } catch (e) {}
+    }
+
+    function saveStoredState() {
+      try {
+        localStorage.setItem('ese_clean_final_app', JSON.stringify({
+          favoriteAuthors: appState.favoriteAuthors,
+          readArticles: appState.readArticles,
+          theme: appState.theme,
+          fontSize: appState.fontSize,
+          fontFamily: appState.fontFamily
+        }));
+      } catch (e) {}
+    }
+
+    function showToast(msg) {
+      var el = document.getElementById('toastNotification');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      if (window._toastTimer) clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(function () { el.classList.add('hidden'); }, 2000);
+    }
+
+    function getTodayFeedArticles() {
+      var q = appState.searchQuery.trim().toLowerCase();
+      var list = [];
+      for (var i = 0; i < AUTHORS_MASTER.length; i++) {
+        var a = AUTHORS_MASTER[i];
+        if (appState.selectedRegion !== 'all' && a.region !== appState.selectedRegion) continue;
+        if (appState.selectedNewspaper !== 'Tümü' && a.newspaper !== appState.selectedNewspaper) continue;
+        if (appState.onlyFavoritesFilter && appState.favoriteAuthors.indexOf(a.id) === -1) continue;
+        var art = generateArticleForAuthorAndDate(a, TODAY_STR, 0);
+        if (q) {
+          var hay = (art.authorName + ' ' + art.newspaper + ' ' + art.title + ' ' + art.summary).toLowerCase();
+          if (hay.indexOf(q) === -1) continue;
+        }
+        list.push(art);
+      }
+      return list;
+    }
+
+    function updateHeaderStats() {
+      var todayTotal = AUTHORS_MASTER.length;
+      var readTotal = appState.readArticles.length;
+      var unreadToday = Math.max(0, todayTotal - readTotal);
+      var unreadBadge = document.getElementById('unreadCountBadge');
+      if (unreadBadge) {
+        unreadBadge.textContent = unreadToday + ' Okunacak Köşe Yazısı';
+      }
+      var readSummary = document.getElementById('readSummaryText');
+      if (readSummary) {
+        readSummary.textContent = readTotal + ' Okundu';
+      }
+      var navDot = document.getElementById('navReadBadgeDot');
+      if (navDot) {
+        navDot.textContent = String(readTotal);
+        if (readTotal > 0) navDot.classList.remove('hidden');
+        else navDot.classList.add('hidden');
+      }
+    }
+
+    function buildArticleCardHtml(art) {
+      var isFav = appState.favoriteAuthors.indexOf(art.authorId) !== -1;
+      var isRead = appState.readArticles.indexOf(art.id) !== -1;
+      var initials = art.authorName.split(' ').map(function (p) { return p.charAt(0); }).join('').slice(0, 2);
+
+      return (
+        '<div class="p-4 rounded-2xl border border-slate-500/15 app-surface shadow-xs hover:border-orange-500/40 transition">' +
+          '<div class="flex items-center justify-between gap-2">' +
+            '<div class="flex items-center gap-2.5 min-w-0">' +
+              '<button type="button" onclick="window.toggleFavoriteAuthor(\'' + art.authorId + '\')" class="text-2xl leading-none text-orange-500 hover:scale-110 transition shrink-0" title="Favorilere Ekle">' +
+                (isFav ? '★' : '☆') +
+              '</button>' +
+              '<div class="w-11 h-11 rounded-full bg-orange-600/15 text-orange-600 font-bold text-sm flex items-center justify-center shrink-0 border border-orange-500/20">' +
+                initials +
+              '</div>' +
+              '<div class="min-w-0">' +
+                '<div class="flex items-center gap-2 flex-wrap">' +
+                  '<span class="text-base sm:text-lg font-bold truncate">' + art.authorName + '</span>' +
+                  '<span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-orange-500/15 text-orange-600">' + art.newspaper + '</span>' +
+                  (isRead ? '<span class="text-xs px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 font-medium">✓ Okundu</span>' : '') +
+                '</div>' +
+                '<div class="text-xs opacity-65 mt-0.5">' + art.date + '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<div class="mt-3 cursor-pointer" onclick="window.openReaderModal(\'' + art.id + '\')">' +
+            '<h3 class="text-lg sm:text-xl font-bold font-editorial leading-snug hover:text-orange-600 transition">' + art.title + '</h3>' +
+            '<p class="text-sm sm:text-base opacity-80 mt-1.5 line-clamp-2 leading-relaxed">' + art.summary + '</p>' +
+          '</div>' +
+
+          '<div class="mt-3.5 pt-3 border-t border-slate-500/10 flex items-center justify-between gap-2">' +
+            '<button type="button" onclick="window.openReaderModal(\'' + art.id + '\')" class="px-5 py-2 rounded-xl bg-orange-600 text-white hover:bg-orange-700 text-sm font-bold transition shadow-xs">' +
+              'Oku' +
+            '</button>' +
+            '<button type="button" onclick="window.openAuthorArchiveInAuthorsTab(\'' + art.authorId + '\')" class="text-xs font-semibold text-orange-600 hover:underline">' +
+              '30 Günlük Arşivi →' +
+            '</button>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+
+    function renderFeedList() {
+      var container = document.getElementById('articlesListContainer');
+      if (!container) return;
+      var list = getTodayFeedArticles();
+      if (list.length === 0) {
+        container.innerHTML = '<div class="p-8 rounded-2xl border border-dashed border-slate-500/30 text-center text-base font-editorial">Bugün için seçili filtrede köşe yazısı bulunamadı.</div>';
+        return;
+      }
+      var visible = list.slice(0, appState.feedVisibleLimit || 30);
+      var html = visible.map(buildArticleCardHtml).join('');
+      if (visible.length < list.length) {
+        html += '<div class="pt-3 pb-2 text-center"><button type="button" onclick="window.loadMoreFeedArticles()" class="w-full py-3 rounded-2xl bg-orange-600 text-white text-sm font-bold shadow-md">Daha Fazla Göster (+' + (list.length - visible.length) + ' Yazar)</button></div>';
+      }
+      container.innerHTML = html;
+    }
+
+    function renderAuthorsTab() {
+      var container = document.getElementById('authorsGridContainer');
+      var archivePanel = document.getElementById('selectedAuthorArchivePanel');
+      if (!container) return;
+
+      if (archivePanel) {
+        if (appState.selectedAuthorIdForArchive) {
+          var selAuthor = AUTHORS_MASTER.find(function (x) { return x.id === appState.selectedAuthorIdForArchive; });
+          if (selAuthor) {
+            var archive30 = [];
+            for (var d = 0; d < DYNAMIC_30_DAYS.length; d++) {
+              archive30.push(generateArticleForAuthorAndDate(selAuthor, DYNAMIC_30_DAYS[d], d));
+            }
+            archivePanel.classList.remove('hidden');
+            archivePanel.innerHTML = (
+              '<div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-500/15">' +
+                '<div>' +
+                  '<div class="flex items-center gap-2 flex-wrap">' +
+                    '<span class="text-lg font-bold font-editorial">' + selAuthor.name + ' — 30 Günlük Arşiv</span>' +
+                    '<span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-orange-500/15 text-orange-600">' + selAuthor.newspaper + '</span>' +
+                  '</div>' +
+                  '<p class="text-xs opacity-70 mt-0.5">Son 30 günün tüm yazıları gün gün aşağıdadır:</p>' +
+                '</div>' +
+                '<button type="button" onclick="window.closeAuthorArchivePanel()" class="px-3 py-1.5 rounded-xl app-subtle text-xs font-bold">Kapat ✕</button>' +
+              '</div>' +
+              '<div class="space-y-2.5 pt-2 max-h-[70vh] overflow-y-auto pr-1">' +
+                archive30.map(function (art) {
+                  return (
+                    '<div class="p-3 rounded-xl app-subtle flex items-center justify-between gap-3">' +
+                      '<div class="min-w-0 flex-1 cursor-pointer" onclick="window.openReaderModal(\'' + art.id + '\')">' +
+                        '<div class="text-xs font-bold text-orange-600">📅 ' + art.date + '</div>' +
+                        '<div class="text-base font-bold font-editorial mt-0.5 hover:text-orange-600 transition">' + art.title + '</div>' +
+                      '</div>' +
+                      '<button type="button" onclick="window.openReaderModal(\'' + art.id + '\')" class="px-4 py-2 rounded-xl bg-orange-600 text-white text-sm font-bold shrink-0">Oku</button>' +
+                    '</div>'
+                  );
+                }).join('') +
+              '</div>'
+            );
+          } else {
+            archivePanel.classList.add('hidden');
+          }
+        } else {
+          archivePanel.classList.add('hidden');
+        }
+      }
+
+      container.innerHTML = AUTHORS_MASTER.map(function (a) {
+        if (appState.selectedRegion !== 'all' && a.region !== appState.selectedRegion) return '';
+        if (appState.selectedNewspaper !== 'Tümü' && a.newspaper !== appState.selectedNewspaper) return '';
+        var isFav = appState.favoriteAuthors.indexOf(a.id) !== -1;
+        var initials = a.name.split(' ').map(function (p) { return p.charAt(0); }).join('').slice(0, 2);
+        var preview = [
+          generateArticleForAuthorAndDate(a, DYNAMIC_30_DAYS[0], 0),
+          generateArticleForAuthorAndDate(a, DYNAMIC_30_DAYS[1], 1),
+          generateArticleForAuthorAndDate(a, DYNAMIC_30_DAYS[2], 2)
+        ];
+
+        return (
+          '<div class="p-4 rounded-2xl border border-slate-500/15 app-surface space-y-3 shadow-xs">' +
+            '<div class="flex items-center justify-between gap-3">' +
+              '<div class="flex items-center gap-2.5 min-w-0">' +
+                '<button type="button" onclick="window.toggleFavoriteAuthor(\'' + a.id + '\')" class="text-2xl leading-none text-orange-500 hover:scale-110 transition shrink-0">' +
+                  (isFav ? '★' : '☆') +
+                '</button>' +
+                '<div class="w-11 h-11 rounded-full bg-orange-600 text-white font-bold text-sm flex items-center justify-center shrink-0">' +
+                  initials +
+                '</div>' +
+                '<div class="min-w-0">' +
+                  '<div class="flex items-center gap-2 flex-wrap">' +
+                    '<span class="text-base sm:text-lg font-bold truncate">' + a.name + '</span>' +
+                    '<span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-orange-500/15 text-orange-600">' + a.newspaper + '</span>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+              '<button type="button" onclick="window.selectAuthorForArchive(\'' + a.id + '\')" class="px-3 py-1.5 rounded-xl bg-orange-600/15 text-orange-600 hover:bg-orange-600 hover:text-white text-xs font-bold shrink-0 transition">' +
+                '30 Günlük Arşiv' +
+              '</button>' +
+            '</div>' +
+            '<div class="space-y-2 pt-2 border-t border-slate-500/10">' +
+              preview.map(function (art) {
+                return (
+                  '<div class="p-2.5 rounded-xl app-subtle flex items-center justify-between gap-2.5 hover:opacity-95 transition">' +
+                    '<div class="min-w-0 flex-1 cursor-pointer" onclick="window.openReaderModal(\'' + art.id + '\')">' +
+                      '<div class="text-xs font-bold text-orange-600">📅 ' + art.date + '</div>' +
+                      '<div class="text-sm sm:text-base font-bold font-editorial truncate hover:text-orange-600">' + art.title + '</div>' +
+                    '</div>' +
+                    '<button type="button" onclick="window.openReaderModal(\'' + art.id + '\')" class="px-3.5 py-1.5 rounded-xl bg-orange-600 text-white text-xs font-bold shrink-0">Oku</button>' +
+                  '</div>' +
+                );
+              }).join('') +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+    }
+
+    function renderArchiveTab() {
+      var container = document.getElementById('archiveArticlesContainer');
+      if (!container) return;
+      var dayIndex = DYNAMIC_30_DAYS.indexOf(appState.selectedDate);
+      if (dayIndex === -1) dayIndex = 0;
+      var list = [];
+      for (var i = 0; i < AUTHORS_MASTER.length; i++) {
+        var a = AUTHORS_MASTER[i];
+        if (appState.selectedRegion !== 'all' && a.region !== appState.selectedRegion) continue;
+        if (appState.selectedNewspaper !== 'Tümü' && a.newspaper !== appState.selectedNewspaper) continue;
+        if (appState.onlyFavoritesFilter && appState.favoriteAuthors.indexOf(a.id) === -1) continue;
+        list.push(generateArticleForAuthorAndDate(a, appState.selectedDate, dayIndex));
+      }
+      container.innerHTML = list.map(buildArticleCardHtml).join('');
+    }
+
+    function renderReadTab() {
+      var container = document.getElementById('readArticlesContainer');
+      if (!container) return;
+      if (appState.readArticles.length === 0) {
+        container.innerHTML = '<div class="p-8 rounded-2xl border border-dashed border-slate-500/30 text-center text-base font-editorial">Henüz okunan köşe yazısı yok. Herhangi bir yazıyı açtığınızda otomatik olarak burada toplanacaktır.</div>';
+        return;
+      }
+      var list = [];
+      for (var k in _articlesCache) {
+        if (appState.readArticles.indexOf(_articlesCache[k].id) !== -1) {
+          list.push(_articlesCache[k]);
+        }
+      }
+      container.innerHTML = list.map(buildArticleCardHtml).join('');
+    }
+
+    function renderFilterBars() {
+      var dateBar = document.getElementById('dateFilterBar');
+      var dateLabel = document.getElementById('activeDateLabel');
+      if (dateLabel) {
+        dateLabel.textContent = (appState.selectedDate === TODAY_STR)
+          ? (appState.selectedDate + ' (Bugün)')
+          : (appState.selectedDate === YESTERDAY_STR ? (appState.selectedDate + ' (Dün)') : appState.selectedDate);
+      }
+      if (dateBar) {
+        dateBar.innerHTML = DYNAMIC_30_DAYS.map(function (d, idx) {
+          var active = appState.selectedDate === d;
+          var cls = active
+            ? 'px-3 py-1.5 rounded-xl text-xs font-bold bg-orange-600 text-white shrink-0 transition'
+            : 'px-3 py-1.5 rounded-xl text-xs font-medium app-surface border border-slate-500/15 hover:border-orange-500/40 shrink-0 transition';
+          var label = (idx === 0) ? (d + ' (Bugün)') : (idx === 1 ? (d + ' (Dün)') : d);
+          return '<button type="button" onclick="window.selectDateFilter(\'' + d + '\')" class="' + cls + '">' + label + '</button>';
+        }).join('');
+      }
+
+      var newspapers = [
+        'Tümü', 'The New York Times', 'Financial Times', 'The Washington Post', 'Project Syndicate',
+        'Sözcü', 'Hürriyet', 'Nefes', 'Milliyet', 'Cumhuriyet', 'T24', 'BirGün', 'Karar', 'Diken', 'Ekonomim', 'Dünya', 'Yeniçağ'
+      ];
+      var npGrid = document.getElementById('allNewspapersGridPanel');
+      if (npGrid) {
+        npGrid.innerHTML = newspapers.map(function (np) {
+          var active = appState.selectedNewspaper === np;
+          var count = (np === 'Tümü') ? AUTHORS_MASTER.length : AUTHORS_MASTER.filter(function (x) { return x.newspaper === np; }).length;
+          var cls = active
+            ? 'px-2.5 py-2 rounded-xl text-xs font-bold bg-orange-600 text-white text-center truncate transition'
+            : 'px-2.5 py-2 rounded-xl text-xs font-medium app-surface border border-slate-500/15 hover:border-orange-500 text-center truncate transition';
+          return '<button type="button" onclick="window.selectNewspaperFilter(\'' + np + '\')" class="' + cls + '">' + np + ' (' + count + ')</button>';
+        }).join('');
+      }
+
+      var npBar = document.getElementById('newspaperFilterBar');
+      if (npBar) {
+        npBar.innerHTML = newspapers.map(function (np) {
+          var active = appState.selectedNewspaper === np;
+          var cls = active
+            ? 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-orange-600 text-white shadow-xs shrink-0 transition'
+            : 'px-3.5 py-1.5 rounded-xl text-xs font-medium app-subtle hover:opacity-85 shrink-0 transition';
+          return '<button type="button" onclick="window.selectNewspaperFilter(\'' + np + '\')" class="' + cls + '">' + np + '</button>';
+        }).join('');
+      }
+
+      var regBtns = { all: 'btnRegionAll', tr: 'btnRegionTr', world: 'btnRegionWorld' };
+      for (var rk in regBtns) {
+        var rBtn = document.getElementById(regBtns[rk]);
+        if (rBtn) {
+          rBtn.className = (appState.selectedRegion === rk)
+            ? 'py-1.5 px-2 rounded-lg text-xs font-bold bg-orange-600 text-white transition text-center truncate'
+            : 'py-1.5 px-2 rounded-lg text-xs font-semibold hover:opacity-85 transition text-center truncate';
+        }
+      }
+
+      var favBtn = document.getElementById('btnToggleFavFilter');
+      var favStar = document.getElementById('favFilterStar');
+      var favBadge = document.getElementById('favCountBadge');
+      if (favBadge) favBadge.textContent = String(appState.favoriteAuthors.length);
+      if (favBtn && favStar) {
+        if (appState.onlyFavoritesFilter) {
+          favBtn.className = 'px-3.5 py-2 rounded-xl text-xs font-bold bg-orange-600 text-white flex items-center gap-1.5 transition shrink-0';
+          favStar.textContent = '★';
+        } else {
+          favBtn.className = 'px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-500/20 flex items-center gap-1.5 transition shrink-0';
+          favStar.textContent = '☆';
+        }
+      }
+    }
+
+    function renderAll() {
+      updateHeaderStats();
+      renderFilterBars();
+      if (appState.activeTab === 'feed') renderFeedList();
+      else if (appState.activeTab === 'authors') renderAuthorsTab();
+      else if (appState.activeTab === 'archive') renderArchiveTab();
+      else if (appState.activeTab === 'read') renderReadTab();
+    }
+
+    window.switchMainTab = function (tabName) {
+      appState.activeTab = tabName;
+      appState.activeArticleId = null;
+      var overlay = document.getElementById('readerModalOverlay');
+      if (overlay) overlay.classList.add('hidden');
+
+      var chrome = ['statusBarRow', 'mainAppHeader', 'bottomNavBar'];
+      chrome.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.classList.remove('hidden');
+      });
+
+      var tabs = ['feed', 'authors', 'archive', 'read'];
+      tabs.forEach(function (t) {
+        var secId = (t === 'feed') ? 'tabContentFeed' : (t === 'authors' ? 'tabContentAuthors' : (t === 'archive' ? 'tabContentArchive' : 'tabContentRead'));
+        var btnId = (t === 'feed') ? 'navBtnFeed' : (t === 'authors' ? 'navBtnAuthors' : (t === 'archive' ? 'navBtnArchive' : 'navBtnRead'));
+        var sec = document.getElementById(secId);
+        var btn = document.getElementById(btnId);
+        if (sec) {
+          if (t === tabName) sec.classList.remove('hidden');
+          else sec.classList.add('hidden');
+        }
+        if (btn) {
+          if (t === tabName) btn.className = 'flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl text-orange-600 font-bold transition';
+          else btn.className = 'flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl opacity-65 hover:opacity-100 transition';
+        }
+      });
+      renderAll();
+    };
+
+    window.clearReadHistory = function () {
+      appState.readArticles = [];
+      saveStoredState();
+      renderAll();
+      showToast('Okunanlar geçmişi temizlendi');
+    };
+
+    window.openReaderModal = function (articleId) {
+      var art = null;
+      for (var k in _articlesCache) {
+        if (_articlesCache[k].id === articleId) { art = _articlesCache[k]; break; }
+      }
+      if (!art) {
+        var m = /^ese-(.+)-d(\d+)$/.exec(articleId || '');
+        if (m) {
+          var authorObj = AUTHORS_MASTER.find(function (x) { return x.id === m[1]; });
+          var dIdx = parseInt(m[2], 10);
+          if (authorObj && DYNAMIC_30_DAYS[dIdx]) {
+            art = generateArticleForAuthorAndDate(authorObj, DYNAMIC_30_DAYS[dIdx], dIdx);
+          }
+        }
+      }
+      if (!art) return;
+
+      appState.lastScrollY = window.scrollY || 0;
+      appState.activeArticleId = articleId;
+      if (appState.readArticles.indexOf(articleId) === -1) {
+        appState.readArticles.push(articleId);
+        saveStoredState();
+      }
+
+      var npBadge = document.getElementById('readerNewspaperBadge');
+      var dateText = document.getElementById('readerDateText');
+      var titleEl = document.getElementById('readerArticleTitle');
+      var avatarEl = document.getElementById('readerAuthorAvatar');
+      var authorEl = document.getElementById('readerAuthorName');
+      var colEl = document.getElementById('readerAuthorColumn');
+      var bodyEl = document.getElementById('readerArticleBody');
+      var archiveListEl = document.getElementById('readerAuthorArchiveList');
+      var srcText = document.getElementById('readerSourceUrlText');
+      var srcLink = document.getElementById('readerOriginalLink');
+      var btnFollow = document.getElementById('btnReaderFollowAuthor');
+
+      if (npBadge) npBadge.textContent = art.newspaper + ' • ' + art.category;
+      if (dateText) dateText.textContent = '📅 ' + art.date;
+      if (titleEl) titleEl.textContent = art.title;
+      if (avatarEl) avatarEl.textContent = art.authorName.split(' ').map(function (p) { return p.charAt(0); }).join('').slice(0, 2);
+      if (authorEl) authorEl.textContent = art.authorName;
+      if (colEl) colEl.textContent = art.newspaper + ' • ' + art.date;
+      if (btnFollow) btnFollow.textContent = (appState.favoriteAuthors.indexOf(art.authorId) !== -1) ? '★' : '☆';
+
+      if (bodyEl) {
+        bodyEl.style.fontSize = appState.fontSize + 'px';
+        bodyEl.className = 'mt-6 space-y-5 leading-relaxed ' + (appState.fontFamily === 'serif' ? 'font-editorial' : '');
+        bodyEl.innerHTML = art.paragraphs.map(function (p, idx) {
+          if (idx === 0) return '<p class="font-semibold leading-relaxed">' + p + '</p>';
+          if (idx === 2) return '<blockquote class="p-4 my-4 rounded-2xl border-l-4 border-orange-600 app-subtle italic">“' + art.summary + '”</blockquote><p>' + p + '</p>';
+          return '<p>' + p + '</p>';
+        }).join('');
+      }
+
+      if (archiveListEl) {
+        var authorObj = AUTHORS_MASTER.find(function (x) { return x.id === art.authorId; });
+        if (authorObj) {
+          var archList = [];
+          for (var d = 0; d < 10; d++) {
+            archList.push(generateArticleForAuthorAndDate(authorObj, DYNAMIC_30_DAYS[d], d));
+          }
+          archiveListEl.innerHTML = archList.map(function (item) {
+            var isCurrent = item.id === art.id;
+            return (
+              '<div class="p-3 rounded-xl border ' + (isCurrent ? 'border-orange-500 bg-orange-500/10' : 'border-slate-500/15 app-subtle') + ' flex items-center justify-between gap-3">' +
+                '<div class="min-w-0 flex-1 cursor-pointer" onclick="window.openReaderModal(\'' + item.id + '\')">' +
+                  '<div class="text-xs font-bold text-orange-600">📅 ' + item.date + '</div>' +
+                  '<div class="text-sm sm:text-base font-bold font-editorial truncate mt-0.5">' + item.title + '</div>' +
+                '</div>' +
+                (!isCurrent ? '<button type="button" onclick="window.openReaderModal(\'' + item.id + '\')" class="px-4 py-1.5 rounded-xl bg-orange-600 text-white text-xs sm:text-sm font-bold shrink-0">Oku</button>' : '') +
+              '</div>'
+            );
+          }).join('');
+        }
+      }
+
+      if (srcText) srcText.textContent = art.sourceUrl;
+      if (srcLink) srcLink.href = art.sourceUrl;
+
+      ['statusBarRow', 'mainAppHeader', 'bottomNavBar', 'tabContentFeed', 'tabContentAuthors', 'tabContentArchive', 'tabContentRead'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+
+      var overlay = document.getElementById('readerModalOverlay');
+      if (overlay) overlay.classList.remove('hidden');
+      window.scrollTo(0, 0);
+    };
+
+    window.closeReaderModal = function () {
+      appState.activeArticleId = null;
+      var overlay = document.getElementById('readerModalOverlay');
+      if (overlay) overlay.classList.add('hidden');
+
+      ['statusBarRow', 'mainAppHeader', 'bottomNavBar'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.classList.remove('hidden');
+      });
+
+      window.switchMainTab(appState.activeTab);
+      window.scrollTo(0, appState.lastScrollY || 0);
+    };
+
+    window.toggleFavoriteAuthor = function (authorId) {
+      var idx = appState.favoriteAuthors.indexOf(authorId);
+      if (idx === -1) {
+        appState.favoriteAuthors.push(authorId);
+        showToast('Yazar favorilerinize eklendi ★');
+      } else {
+        appState.favoriteAuthors.splice(idx, 1);
+        showToast('Yazar favorilerden çıkarıldı');
+      }
+      saveStoredState();
+      renderAll();
+      var btnFollow = document.getElementById('btnReaderFollowAuthor');
+      if (btnFollow && appState.activeArticleId) {
+        btnFollow.textContent = (appState.favoriteAuthors.indexOf(authorId) !== -1) ? '★' : '☆';
+      }
+    };
+
+    window.toggleFavoriteFromReader = function () {
+      if (!appState.activeArticleId) return;
+      var m = /^ese-(.+)-d(\d+)$/.exec(appState.activeArticleId);
+      if (m) window.toggleFavoriteAuthor(m[1]);
+    };
+
+    window.selectRegionFilter = function (k) {
+      appState.selectedRegion = k;
+      appState.selectedNewspaper = 'Tümü';
+      renderAll();
+    };
+
+    window.selectNewspaperFilter = function (np) {
+      appState.selectedNewspaper = np;
+      renderAll();
+    };
+
+    window.selectDateFilter = function (d) {
+      appState.selectedDate = d;
+      renderAll();
+    };
+
+    window.stepDateFilter = function (step) {
+      var idx = DYNAMIC_30_DAYS.indexOf(appState.selectedDate);
+      if (idx === -1) idx = 0;
+      var next = idx + step;
+      if (next < 0) next = 0;
+      if (next >= DYNAMIC_30_DAYS.length) next = DYNAMIC_30_DAYS.length - 1;
+      appState.selectedDate = DYNAMIC_30_DAYS[next];
+      renderAll();
+    };
+
+    window.toggleFavoritesOnly = function () {
+      appState.onlyFavoritesFilter = !appState.onlyFavoritesFilter;
+      renderAll();
+    };
+
+    window.handleSearchInput = function (val) {
+      appState.searchQuery = val || '';
+      var clearBtn = document.getElementById('btnClearSearch');
+      if (clearBtn) {
+        if (appState.searchQuery.length > 0) clearBtn.classList.remove('hidden');
+        else clearBtn.classList.add('hidden');
+      }
+      renderAll();
+    };
+
+    window.clearSearch = function () {
+      appState.searchQuery = '';
+      var input = document.getElementById('searchInput');
+      if (input) input.value = '';
+      var clearBtn = document.getElementById('btnClearSearch');
+      if (clearBtn) clearBtn.classList.add('hidden');
+      renderAll();
+    };
+
+    window.selectAuthorForArchive = function (id) {
+      appState.selectedAuthorIdForArchive = id;
+      renderAuthorsTab();
+      window.scrollTo(0, 0);
+    };
+
+    window.closeAuthorArchivePanel = function () {
+      appState.selectedAuthorIdForArchive = null;
+      renderAuthorsTab();
+    };
+
+    window.openAuthorArchiveInAuthorsTab = function (id) {
+      appState.selectedAuthorIdForArchive = id;
+      window.switchMainTab('authors');
+      window.scrollTo(0, 0);
+    };
+
+    window.openAuthorFromReader = function () {
+      if (!appState.activeArticleId) return;
+      var m = /^ese-(.+)-d(\d+)$/.exec(appState.activeArticleId);
+      if (m) window.openAuthorArchiveInAuthorsTab(m[1]);
+    };
+
+    window.toggleNewspapersGridPanel = function () {
+      var p = document.getElementById('allNewspapersGridPanel');
+      var b = document.getElementById('btnToggleAllNewspapersGrid');
+      if (!p) return;
+      if (p.classList.contains('hidden')) {
+        p.classList.remove('hidden');
+        if (b) b.textContent = 'Gazete Tablosunu Gizle ▴';
+      } else {
+        p.classList.add('hidden');
+        if (b) b.textContent = 'Tüm Gazeteleri Tabloda Gör ▾';
+      }
+    };
+
+    window.cycleTheme = function () {
+      var arr = ['light', 'sepia', 'dark'];
+      var idx = (arr.indexOf(appState.theme) + 1) % arr.length;
+      appState.theme = arr[idx];
+      document.body.className = 'theme-' + appState.theme;
+      saveStoredState();
+      var labels = { light: 'Gündüz', sepia: 'Sepya', dark: 'Gece' };
+      showToast('Tema: ' + labels[appState.theme]);
+    };
+
+    window.toggleBrowserFullscreen = function () {
+      try {
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen();
+        } else if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      } catch (e) {}
+    };
+
+    window.adjustReaderFontSize = function (delta) {
+      var next = appState.fontSize + delta;
+      if (next < 16) next = 16;
+      if (next > 36) next = 36;
+      appState.fontSize = next;
+      var b = document.getElementById('readerArticleBody');
+      if (b) b.style.fontSize = appState.fontSize + 'px';
+      saveStoredState();
+    };
+
+    window.toggleReaderFontFamily = function () {
+      appState.fontFamily = (appState.fontFamily === 'serif') ? 'sans' : 'serif';
+      var b = document.getElementById('readerArticleBody');
+      if (b) b.className = 'mt-6 space-y-5 leading-relaxed ' + (appState.fontFamily === 'serif' ? 'font-editorial' : '');
+      saveStoredState();
+    };
+
+    window.loadMoreFeedArticles = function () {
+      appState.feedVisibleLimit = (appState.feedVisibleLimit || 30) + 30;
+      renderFeedList();
+    };
+
+    window.onload = function () {
+      loadStoredState();
+      document.body.className = 'theme-' + appState.theme;
+      renderAll();
+      setInterval(function () {
+        DYNAMIC_30_DAYS = getRollingDates(30);
+        TODAY_STR = DYNAMIC_30_DAYS[0];
+        YESTERDAY_STR = DYNAMIC_30_DAYS[1];
+        var dBadge = document.getElementById('headerDateBadge');
+        if (dBadge) dBadge.textContent = TODAY_STR;
+        renderAll();
+      }, 60000);
+    };
+  </script>
+</body>
+</html>
