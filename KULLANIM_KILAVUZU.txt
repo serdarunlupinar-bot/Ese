@@ -1,0 +1,27 @@
+============================================================
+           ESE PWA -> ANDROID APK ÜRETME KILAVUZU
+============================================================
+
+Bu paket, PWABuilder (https://www.pwabuilder.com) ile telefonunuza
+kurabileceğiniz gerçek bir Android APK dosyası üretmek için
+gerekli tüm dosyaları (HTML, manifest.json, sw.js ve ikonlar) içerir.
+
+------------------------------------------------------------
+YÖNTEM A: Ücretsiz Web Sitesi Olarak Yayınlayıp APK Alma (En Hızlısı)
+------------------------------------------------------------
+1. Bu zip içindeki dosyaları ücretsiz bir hostinge (Netlify, Vercel
+   veya GitHub Pages) yükleyin.
+   Örnek Netlify: https://app.netlify.com/drop adresini açıp bu zip içindeki
+   klasörü sürükleyip bırakın (30 saniyede size bir link verir).
+2. https://www.pwabuilder.com adresine gidin.
+3. Size verilen linki kutuya yapıştırıp "Start"a basın.
+4. "Package for Stores" butonuna tıklayıp "Android"i seçin.
+5. "Download Package" diyerek APK dosyanızı indirin ve telefonunuza kurun!
+
+------------------------------------------------------------
+YÖNTEM B: Doğrudan Telefona PWA Olarak Kurma (En Kolayı)
+------------------------------------------------------------
+1. Netlify veya GitHub Pages linkinizi telefonunuzun Chrome tarayıcısında açın.
+2. Sağ üstteki üç nokta (⋮) simgesine dokunun.
+3. "Uygulamayı Yükle" veya "Ana Ekrana Ekle" butonuna basın.
+4. ESE uygulamanız ana ekranınıza ve uygulama çekmecenize kurulacaktır!
