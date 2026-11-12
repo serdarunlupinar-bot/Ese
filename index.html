@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ESE" />
   <title>ESE — Günlük Köşe Yazıları</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -57,7 +61,7 @@
 
   <div id="deviceContainer" class="full-frame-wrapper app-surface relative pb-28">
 
-    <!-- Sade Bilgi Çubuğu: Yapay Saat, Canlı, 5G, %100 KALDIRILDI! Sadece Okunacak Yazı Sayısı -->
+    <!-- Sade Bilgi Çubuğu: Yapay Saat/5G/%100 Kaldırıldı, Okunacak Yazı Sayısı Eklendi -->
     <div id="statusBarRow" class="px-4 py-2 flex items-center justify-between text-xs border-b border-slate-500/15 app-subtle">
       <div class="flex items-center gap-2">
         <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
@@ -174,7 +178,7 @@
       <div id="archiveArticlesContainer" class="space-y-3"></div>
     </section>
 
-    <!-- SEKME 4: OKUNANLAR (YENİ SEKMEYLE OKUDUĞUNUZ YAZILAR BURADA TOPLANIR! SERVİS & KOD YOK!) -->
+    <!-- SEKME 4: OKUNANLAR (YENİ SEKMEYLE OKUDUĞUNUZ YAZILAR BURADA TOPLANIR!) -->
     <section id="tabContentRead" class="hidden flex-1 px-4 py-3 space-y-3">
       <div class="p-3.5 rounded-2xl border border-slate-500/20 app-subtle flex items-center justify-between gap-2">
         <div>
@@ -233,7 +237,6 @@
             </button>
           </div>
 
-          <!-- Varsayılan 22px Büyük Font -->
           <div id="readerArticleBody" class="mt-6 space-y-5 leading-relaxed font-editorial" style="font-size: 22px;"></div>
 
           <div class="mt-10 pt-6 border-t border-slate-500/20">
@@ -254,7 +257,7 @@
       </div>
     </section>
 
-    <!-- ALT GEZİNME ÇUBUĞU (4 SEKME: GÜNÜN YAZILARI, YAZARLAR, GÜN GÜN ARŞİV, OKUNANLAR — SERVİS & KOD YOK!) -->
+    <!-- ALT GEZİNME ÇUBUĞU (4 SEKME: GÜNÜN YAZILARI, YAZARLAR, GÜN GÜN ARŞİV, OKUNANLAR) -->
     <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[960px] app-surface border-t border-slate-500/20 z-40 px-2 py-2 flex items-center justify-around shadow-lg" id="bottomNavBar">
       <button id="navBtnFeed" type="button" onclick="window.switchMainTab('feed')" class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl text-orange-600 font-bold transition">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -632,7 +635,7 @@
                       '<div class="text-sm sm:text-base font-bold font-editorial truncate hover:text-orange-600">' + art.title + '</div>' +
                     '</div>' +
                     '<button type="button" onclick="window.openReaderModal(\'' + art.id + '\')" class="px-3.5 py-1.5 rounded-xl bg-orange-600 text-white text-xs font-bold shrink-0">Oku</button>' +
-                  '</div>' +
+                  '</div>'
                 );
               }).join('') +
             '</div>' +
